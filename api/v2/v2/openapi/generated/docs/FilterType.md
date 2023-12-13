@@ -1,0 +1,17 @@
+# FilterType
+
+## Enum
+
+
+* `FIDS` (value: `"fids"`)
+
+* `PARENT_URL` (value: `"parent_url"`)
+
+* `EMBED_URL` (value: `"embed_url"`)
+
+* `GLOBAL_TRENDING` (value: `"global_trending"`)
+
+
+[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+
+

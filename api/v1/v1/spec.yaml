@@ -1,0 +1,1535 @@
+openapi: 3.0.0
+info:
+  title: Farcaster API V1
+  version: "1.0"
+servers:
+  - url: https://api.neynar.com/v1
+
+components:
+  schemas:
+    ViewerContext:
+      type: object
+      required:
+        - following
+        - followedBy
+      properties:
+        following:
+          type: boolean
+        followedBy:
+          type: boolean
+        liked:
+          type: boolean
+        recasted:
+          type: boolean
+    Fid:
+      type: integer
+      format: int32
+      default: 3
+      description: User identifier (unsigned integer)
+    ActiveStatus:
+      type: string
+      enum:
+        - active
+        - inactive
+      description: |
+        The status of a user.
+          - active: The user is currently active.
+          - inactive: The user is not currently active.
+    ReactionType:
+      type: string
+      enum:
+        - like
+        - recast
+      description: |
+        The reaction type of a cast.
+          - like: Cast is being liked by a user.
+          - recast: Cast is being recasted by a user.
+    CastType:
+      type: string
+      enum:
+        - cast-mention
+        - cast-reply
+      description: |
+        The notification type of a cast.
+    Address:
+      type: string
+      default: "0x5A927Ac639636E534b678e81768CA19e2C6280B7"
+      description: Ethereum address
+    CastHash:
+      type: string
+      default: "0xfe90f9de682273e05b201629ad2338bdcd89b6be"
+      description: Cast Hash
+    Timestamp:
+      type: string
+      format: date-time
+    ErrorRes:
+      type: object
+      required:
+        - message
+      description: Returns ErrorRes metadata
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        property:
+          type: string
+    User:
+      type: object
+      required:
+        - fid
+        - username
+        - custodyAddress
+        - displayName
+        - pfp
+        - profile
+        - followerCount
+        - followingCount
+        - verifications
+        - activeStatus
+      properties:
+        fid:
+          $ref: "#/components/schemas/Fid"
+        username:
+          type: string
+          description: The username of the user.
+        custodyAddress:
+          type: string
+          description: Custody Address of the user.
+        displayName:
+          type: string
+          description: The display of the reactor.
+        pfp:
+          type: object
+          required:
+            - url
+          properties:
+            url:
+              description: The URL of the user's profile picture.
+              type: string
+        profile:
+          type: object
+          required:
+            - bio
+          properties:
+            bio:
+              type: object
+              required:
+                - text
+                - mentionedProfiles
+              properties:
+                text:
+                  type: string
+                mentionedProfiles:
+                  type: array
+                  items:
+                    type: string
+                  default: []
+        followerCount:
+          type: integer
+          format: int32
+          description: The number of followers the user has.
+        followingCount:
+          type: integer
+          format: int32
+          description: The number of users the user is following.
+        verifications:
+          type: array
+          items:
+            $ref: "#/components/schemas/Address"
+        activeStatus:
+          $ref: "#/components/schemas/ActiveStatus"
+        viewerContext:
+          $ref: "#/components/schemas/ViewerContext"
+    Reactor:
+      type: object
+      required:
+        - fid
+        - username
+        - displayName
+        - pfp
+        - followerCount
+        - followingCount
+      properties:
+        fid:
+          type: integer
+          format: int32
+          description: The unique identifier of the reactor.
+        username:
+          type: string
+          description: The username of the reactor.
+        displayName:
+          type: string
+          description: The display name of the reactor.
+        pfp:
+          type: object
+          required:
+            - url
+          properties:
+            url:
+              type: string
+              description: The URL of the reactor's profile picture.
+        followerCount:
+          type: integer
+          format: int32
+          description: The number of followers the reactor has.
+        followingCount:
+          type: integer
+          format: int32
+          description: The number of users the reactor is following.
+        viewerContext:
+          type: object
+          required:
+            - following
+            - followedBy
+          properties:
+            following:
+              type: boolean
+              description: Indicates if the viewer is following the reactor.
+            followedBy:
+              type: boolean
+              description: Indicates if the reactor is followed by the viewer.
+    Recaster:
+      type: object
+      required:
+        - fid
+        - username
+        - displayName
+        - pfp
+        - profile
+        - followerCount
+        - followingCount
+        - timestamp
+      properties:
+        fid:
+          type: integer
+          format: int32
+          description: The unique identifier of the recaster.
+        username:
+          type: string
+          description: The username of the recaster.
+        displayName:
+          type: string
+          description: The display name of the recaster.
+        pfp:
+          type: object
+          required:
+            - url
+          properties:
+            url:
+              type: string
+              description: The URL of the recaster's profile picture.
+        profile:
+          type: object
+          required:
+            - bio
+          properties:
+            bio:
+              type: object
+              required:
+                - text
+                - mentions
+              properties:
+                text:
+                  type: string
+                mentions:
+                  type: array
+                  items:
+                    type: string
+                    properties: {}
+        followerCount:
+          type: integer
+          format: int32
+          description: The number of followers the recaster has.
+        followingCount:
+          type: integer
+          format: int32
+          description: The number of users the recaster is following.
+        timestamp:
+          $ref: "#/components/schemas/Timestamp"
+        viewerContext:
+          type: object
+          required:
+            - following
+            - followedBy
+          properties:
+            following:
+              type: boolean
+              description: Indicates if the viewer is following the recaster.
+            followedBy:
+              type: boolean
+              description: Indicates if the recaster is followed by the viewer.
+    EmbedUrl:
+      type: object
+      required:
+        - url
+      properties:
+        url:
+          type: string
+    ReactionWithCastMeta:
+      type: object
+      description: "Reaction of a user (either like or recast), along with its associated cast"
+      required:
+        - reaction
+      properties:
+        reaction:
+          type: object
+          required:
+            - reactor_fid
+            - reaction_type
+            - reaction_hash
+            - reaction_target_hash
+            - reaction_timestamp
+          properties:
+            reactor_fid:
+              $ref: "#/components/schemas/Fid"
+            reaction_type:
+              $ref: "#/components/schemas/ReactionType"
+            reaction_hash:
+              type: string
+            reaction_target_hash:
+              type: string
+            reaction_timestamp:
+              type: string
+              format: date-time
+        cast:
+          type: object
+          required:
+            - cast_fid
+            - cast_hash
+            - cast_text
+            - cast_embeds
+            - cast_timestamp
+          properties:
+            cast_fid:
+              $ref: "#/components/schemas/Fid"
+            cast_hash:
+              type: string
+            cast_text:
+              type: string
+            cast_embeds:
+              type: array
+              items:
+                $ref: "#/components/schemas/EmbedUrl"
+            cast_timestamp:
+              type: string
+              format: date-time
+        cast_author:
+          $ref: "#/components/schemas/User"
+    Reaction:
+      type: object
+      required:
+        - type
+        - hash
+        - reactor
+        - timestamp
+        - castHash
+      properties:
+        type:
+          $ref: "#/components/schemas/ReactionType"
+        hash:
+          $ref: "#/components/schemas/Address"
+        reactor:
+          $ref: "#/components/schemas/Reactor"
+        timestamp:
+          $ref: "#/components/schemas/Timestamp"
+        castHash:
+          $ref: "#/components/schemas/CastHash"
+    Cast:
+      type: object
+      required:
+        - hash
+        - parentHash
+        - parentUrl
+        - threadHash
+        - parentAuthor
+        - author
+        - text
+        - timestamp
+        - embeds
+        - mentionedProfiles
+      properties:
+        hash:
+          type: string
+        parentHash:
+          type: string
+          nullable: true
+        parentUrl:
+          type: string
+          nullable: true
+        threadHash:
+          type: string
+        parentAuthor:
+          type: object
+          allOf:
+            - $ref: "#/components/schemas/Fid"
+            - required:
+                - fid
+              properties:
+                fid:
+                  type: string
+                  nullable: true
+        mentionedProfiles:
+          type: array
+          items:
+            $ref: "#/components/schemas/User"
+        author:
+          oneOf:
+            - $ref: "#/components/schemas/User"
+            - type: object
+              required:
+                - fid
+              properties:
+                fid:
+                  type: string
+        text:
+          type: string
+        timestamp:
+          $ref: "#/components/schemas/Timestamp"
+        embeds:
+          type: array
+          items:
+            $ref: "#/components/schemas/EmbedUrl"
+        type:
+          $ref: "#/components/schemas/CastType"
+    CastWithInteractionsReactionsOrRecasts:
+      type: object
+      required:
+        - count
+        - fids
+        - fnames
+      properties:
+        count:
+          type: integer
+          format: int32
+        fids:
+          type: array
+          items:
+            $ref: "#/components/schemas/Fid"
+        fnames:
+          type: array
+          items:
+            type: string
+    CastWithInteractionsReplies:
+      type: object
+      required:
+        - count
+      properties:
+        count:
+          type: integer
+          format: int32
+    CastWithInteractions:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/Cast"
+        - required:
+            - reactions
+            - recasts
+            - recasters
+            - replies
+          properties:
+            reactions:
+              $ref: "#/components/schemas/CastWithInteractionsReactionsOrRecasts"
+            recasts:
+              $ref: "#/components/schemas/CastWithInteractionsReactionsOrRecasts"
+            recasters:
+              type: array
+              items:
+                type: string
+            viewerContext:
+              $ref: "#/components/schemas/ViewerContext"
+            replies:
+              $ref: "#/components/schemas/CastWithInteractionsReplies"
+    NextCursor:
+      type: object
+      description: Returns next cursor
+      required:
+        - cursor
+      properties:
+        cursor:
+          type: string
+          nullable: true
+    ReactionsAndRecastsNotification:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/Cast"
+        - type: object
+          properties:
+            reactors:
+              type: array
+              items:
+                $ref: "#/components/schemas/User"
+            reactionType:
+              $ref: "#/components/schemas/ReactionType"
+    UserCastLikeResponse:
+      type: object
+      required:
+        - result
+      properties:
+        result:
+          type: object
+          required:
+            - reactor
+            - likes
+            - next
+          properties:
+            reactor:
+              $ref: "#/components/schemas/User"
+            likes:
+              type: array
+              items:
+                $ref: "#/components/schemas/ReactionWithCastMeta"
+            next:
+              $ref: "#/components/schemas/NextCursor"
+    RecentUsersResponse:
+      type: object
+      required:
+        - result
+      properties:
+        result:
+          type: object
+          required:
+            - users
+            - next
+          properties:
+            users:
+              type: array
+              items:
+                $ref: "#/components/schemas/User"
+            next:
+              $ref: "#/components/schemas/NextCursor"
+    CastResponse:
+      type: object
+      required:
+        - result
+      properties:
+        result:
+          type: object
+          required:
+            - cast
+          properties:
+            cast:
+              $ref: "#/components/schemas/CastWithInteractions"
+    AllCastsInThreadResponse:
+      type: object
+      required:
+        - result
+      properties:
+        result:
+          type: object
+          required:
+            - casts
+          properties:
+            casts:
+              type: array
+              items:
+                $ref: "#/components/schemas/CastWithInteractions"
+    CastsResponse:
+      type: object
+      required:
+        - result
+      properties:
+        result:
+          type: object
+          required:
+            - casts
+            - next
+          properties:
+            casts:
+              type: array
+              items:
+                $ref: "#/components/schemas/CastWithInteractions"
+            next:
+              $ref: "#/components/schemas/NextCursor"
+    RecentCastsResponse:
+      type: object
+      required:
+        - result
+      properties:
+        result:
+          type: object
+          required:
+            - casts
+            - next
+          properties:
+            casts:
+              type: array
+              items:
+                $ref: "#/components/schemas/CastWithInteractions"
+            next:
+              $ref: "#/components/schemas/NextCursor"
+    VerificationResponse:
+      type: object
+      required:
+        - result
+      properties:
+        result:
+          type: object
+          required:
+            - fid
+            - username
+            - display_name
+            - verifications
+          properties:
+            fid:
+              type: string
+            username:
+              type: string
+            display_name:
+              type: string
+            verifications:
+              type: array
+              items:
+                type: string
+    MentionsAndRepliesResponse:
+      type: object
+      required:
+        - result
+      properties:
+        result:
+          type: object
+          required:
+            - notifications
+            - next
+          properties:
+            notifications:
+              type: array
+              items:
+                $ref: "#/components/schemas/CastWithInteractions"
+            next:
+              $ref: "#/components/schemas/NextCursor"
+    ReactionsAndRecastsResponse:
+      type: object
+      required:
+        - result
+      properties:
+        result:
+          type: object
+          required:
+            - notifications
+            - next
+          properties:
+            notifications:
+              type: array
+              items:
+                $ref: "#/components/schemas/ReactionsAndRecastsNotification"
+            next:
+              $ref: "#/components/schemas/NextCursor"
+    CustodyAddressResponse:
+      type: object
+      required:
+        - result
+      properties:
+        result:
+          type: object
+          required:
+            - fid
+            - custodyAddress
+          properties:
+            fid:
+              $ref: "#/components/schemas/Fid"
+            custodyAddress:
+              type: string
+              nullable: true
+    CastLikesResponse:
+      type: object
+      required:
+        - result
+      properties:
+        result:
+          type: object
+          required:
+            - likes
+            - next
+          properties:
+            likes:
+              type: array
+              items:
+                $ref: "#/components/schemas/Reaction"
+            next:
+              $ref: "#/components/schemas/NextCursor"
+    CastReactionsResponse:
+      type: object
+      required:
+        - result
+      properties:
+        result:
+          type: object
+          required:
+            - casts
+            - next
+          properties:
+            casts:
+              type: array
+              items:
+                $ref: "#/components/schemas/Reaction"
+            next:
+              $ref: "#/components/schemas/NextCursor"
+    CastRecasterResponse:
+      type: object
+      required:
+        - result
+      properties:
+        result:
+          type: object
+          required:
+            - users
+            - next
+          properties:
+            users:
+              type: array
+              items:
+                $ref: "#/components/schemas/Recaster"
+            next:
+              $ref: "#/components/schemas/NextCursor"
+    FollowResponseUser:
+      allOf:
+        - $ref: "#/components/schemas/User"
+        - required:
+            - timestamp
+          properties:
+            timestamp:
+              type: string
+              format: date-time
+    FollowResponse:
+      type: object
+      required:
+        - result
+      properties:
+        result:
+          type: object
+          required:
+            - users
+            - next
+          properties:
+            users:
+              type: array
+              items:
+                $ref: "#/components/schemas/FollowResponseUser"
+            next:
+              $ref: "#/components/schemas/NextCursor"
+    UserResponse:
+      type: object
+      required:
+        - result
+      properties:
+        result:
+          type: object
+          required:
+            - user
+          properties:
+            user:
+              $ref: "#/components/schemas/User"
+
+  parameters:
+    ApiKey:
+      name: api_key
+      in: header
+      required: true
+      schema:
+        type: string
+        default: NEYNAR_API_DOCS
+      description: API key required for authentication.
+
+  responses:
+    404Response:
+      description: "Resource not found"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorRes"
+    400Response:
+      description: "Bad Request"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorRes"
+
+tags:
+  - name: User
+    description: Operations related to user
+    externalDocs:
+      description: More info about user
+      url: https://docs.neynar.com/reference/user-operations-v1
+  - name: Cast
+    description: Operations related to cast
+    externalDocs:
+      description: More info about cast
+      url: https://docs.neynar.com/reference/cast-operations-v1
+  - name: Verification
+    description: Operations related to Verifications
+    externalDocs:
+      description: More info about Verifications
+      url: https://docs.neynar.com/reference/verification-operations-v1
+  - name: Notifications
+    description: Operations related to notifications
+    externalDocs:
+      description: More info about notifications
+      url: https://docs.neynar.com/reference/notification-operations-v1
+  - name: Reactions
+    description: Operations related to reactions
+    externalDocs:
+      description: More info about reaction
+      url: https://docs.neynar.com/reference/reaction-operations-v1
+  - name: Follows
+    description: Operations related to follows
+    externalDocs:
+      description: More info about follows
+      url: https://docs.neynar.com/reference/follow-operations-v1
+
+paths:
+  /farcaster/user:
+    get:
+      tags:
+        - User
+      summary: Get User Information by FID
+      description: Returns metadata about a specific user
+      externalDocs:
+        url: https://docs.neynar.com/reference/user-v1
+      operationId: user
+      parameters:
+        - $ref: "#/components/parameters/ApiKey"
+        - name: fid
+          in: query
+          required: true
+          description: fid of a user
+          schema:
+            $ref: "#/components/schemas/Fid"
+        - name: viewerFid
+          in: query
+          description: >-
+            fid of the user viewing this information, needed for contextual
+            information.
+          schema:
+            $ref: "#/components/schemas/Fid"
+      responses:
+        "200":
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        "404":
+          $ref: "#/components/responses/404Response"
+        "400":
+          $ref: "#/components/responses/400Response"
+      deprecated: false
+  /farcaster/user-by-username:
+    get:
+      tags:
+        - User
+      summary: Get User Information by username
+      description: Returns metadata about a specific user
+      externalDocs:
+        url: https://docs.neynar.com/reference/user-by-username-v1
+      operationId: user-by-username
+      parameters:
+        - $ref: "#/components/parameters/ApiKey"
+        - name: username
+          in: query
+          required: true
+          description: Username of the user
+          schema:
+            type: string
+            default: "shreyas-chorge"
+        - name: viewerFid
+          in: query
+          description: >-
+            fid of the user viewing this information, needed for contextual
+            information.
+          schema:
+            $ref: "#/components/schemas/Fid"
+      responses:
+        "200":
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        "400":
+          $ref: "#/components/responses/400Response"
+        "404":
+          $ref: "#/components/responses/404Response"
+      deprecated: false
+  /farcaster/user-cast-likes:
+    get:
+      tags:
+        - User
+      summary: Get User Cast Likes
+      description: Fetch all the liked cast of a User
+      externalDocs:
+        url: https://docs.neynar.com/reference/user-cast-likes-v1
+      operationId: user-cast-likes
+      parameters:
+        - $ref: "#/components/parameters/ApiKey"
+        - name: fid
+          in: query
+          required: true
+          description: FID of the user
+          schema:
+            $ref: "#/components/schemas/Fid"
+        - name: viewerFid
+          in: query
+          description: >-
+            fid of the user viewing this information, needed for contextual
+            information.
+          schema:
+            $ref: "#/components/schemas/Fid"
+        - name: limit
+          in: query
+          description: Number of results to retrieve (default 25, max 150)
+          schema:
+            type: integer
+            default: 25
+            minimum: 1
+            maximum: 150
+        - name: cursor
+          in: query
+          description: Pagination cursor
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserCastLikeResponse"
+        "400":
+          $ref: "#/components/responses/400Response"
+  /farcaster/recent-users:
+    get:
+      tags:
+        - User
+      summary: Get Recent Users
+      description: Get a list of casts from the protocol in reverse chronological order based on timestamp
+      externalDocs:
+        url: https://docs.neynar.com/reference/recent-users-v1
+      operationId: recent-users
+      parameters:
+        - $ref: "#/components/parameters/ApiKey"
+        - name: viewerFid
+          in: query
+          description: >-
+            fid of the user viewing this information, needed for contextual
+            information.
+          required: false
+          schema:
+            $ref: "#/components/schemas/Fid"
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            format: int32
+            default: 100
+            minimum: 1
+            maximum: 1000
+          description: Number of results to retrieve (default 100, max 1000)
+        - name: cursor
+          in: query
+          schema:
+            type: string
+          description: Pagination cursor.
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RecentUsersResponse"
+        "400":
+          $ref: "#/components/responses/400Response"
+  /farcaster/custody-address:
+    get:
+      tags:
+        - User
+      summary: Get the custody address for a given FID
+      description: Returns the custody address for a given FID
+      externalDocs:
+        url: https://docs.neynar.com/reference/custody-address-v1
+      operationId: custody-address
+      parameters:
+        - $ref: "#/components/parameters/ApiKey"
+        - name: fid
+          in: query
+          required: true
+          description: fid of a user
+          schema:
+            $ref: "#/components/schemas/Fid"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustodyAddressResponse"
+        "400":
+          $ref: "#/components/responses/400Response"
+      deprecated: false
+  /farcaster/cast:
+    get:
+      tags:
+        - Cast
+      summary: Retrieve cast for a given hash
+      description: Gets information about an individual cast
+      externalDocs:
+        url: https://docs.neynar.com/reference/cast-v1
+      operationId: cast
+      parameters:
+        - $ref: "#/components/parameters/ApiKey"
+        - name: hash
+          in: query
+          required: true
+          description: Cast hash
+          schema:
+            $ref: "#/components/schemas/CastHash"
+        - name: viewerFid
+          in: query
+          description: >-
+            fid of the user viewing this information, needed for contextual
+            information.
+          required: false
+          schema:
+            $ref: "#/components/schemas/Fid"
+      responses:
+        "200":
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CastResponse"
+        "400":
+          $ref: "#/components/responses/400Response"
+  /farcaster/all-casts-in-thread:
+    get:
+      tags:
+        - Cast
+      summary: Retrieve all casts in a given thread hash
+      description: Gets all casts, including root cast and all replies for a given thread hash. No limit the depth of replies.
+      externalDocs:
+        url: https://docs.neynar.com/reference/all-casts-in-thread-v1
+      operationId: all-casts-in-thread
+      parameters:
+        - $ref: "#/components/parameters/ApiKey"
+        - name: threadHash
+          in: query
+          required: true
+          description: The hash of the thread to retrieve casts from.
+          schema:
+            $ref: "#/components/schemas/CastHash"
+        - name: viewerFid
+          in: query
+          description: >-
+            fid of the user viewing this information, needed for contextual
+            information.
+          required: false
+          schema:
+            $ref: "#/components/schemas/Fid"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AllCastsInThreadResponse"
+  /farcaster/casts:
+    get:
+      tags:
+        - Cast
+      summary: Retrieve casts for a given user
+      description: Gets the most recent casts for a user
+      externalDocs:
+        url: https://docs.neynar.com/reference/casts-v1
+      operationId: casts
+      parameters:
+        - $ref: "#/components/parameters/ApiKey"
+        - name: fid
+          in: query
+          required: true
+          description: fid of a user
+          schema:
+            $ref: "#/components/schemas/Fid"
+        - name: parent_url
+          in: query
+          description: >-
+            A cast can be part of a certain channel. The channel is identified by `parent_url`. All casts in the channel ladder up to the same parent_url.
+          required: false
+          example: https://ethereum.org
+          schema:
+            type: string
+        - name: viewerFid
+          in: query
+          description: >-
+            fid of the user viewing this information, needed for contextual
+            information.
+          required: false
+          schema:
+            $ref: "#/components/schemas/Fid"
+        - name: limit
+          in: query
+          description: Number of results to retrieve (default 25, max 150)
+          required: false
+          schema:
+            type: integer
+            default: 25
+            minimum: 1
+            maximum: 150
+        - name: cursor
+          in: query
+          description: Pagination cursor.
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CastsResponse"
+        "400":
+          $ref: "#/components/responses/400Response"
+  /farcaster/recent-casts:
+    get:
+      tags:
+        - Cast
+      summary: Get Recent Casts
+      description: Get a list of casts from the protocol in reverse chronological order based on timestamp
+      externalDocs:
+        url: https://docs.neynar.com/reference/recent-casts-v1
+      operationId: recent-casts
+      parameters:
+        - $ref: "#/components/parameters/ApiKey"
+        - name: viewerFid
+          in: query
+          description: >-
+            fid of the user viewing this information, needed for contextual
+            information.
+          required: false
+          schema:
+            $ref: "#/components/schemas/Fid"
+        - name: limit
+          in: query
+          description: Number of results to retrieve (default 25, max 100)
+          required: false
+          schema:
+            type: integer
+            default: 25
+            minimum: 1
+            maximum: 100
+        - name: cursor
+          in: query
+          description: Pagination cursor.
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RecentCastsResponse"
+        "400":
+          $ref: "#/components/responses/400Response"
+  /farcaster/verifications:
+    get:
+      tags:
+        - Verification
+      summary: Retrieve verifications for a given FID
+      description: Get all known verifications of a user
+      externalDocs:
+        url: https://docs.neynar.com/reference/verifications-v1
+      operationId: verifications
+      parameters:
+        - $ref: "#/components/parameters/ApiKey"
+        - name: fid
+          in: query
+          required: true
+          description: FID of the user
+          schema:
+            $ref: "#/components/schemas/Fid"
+      responses:
+        "200":
+          description: Profile details and verifications for the given FID.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VerificationResponse"
+        "400":
+          $ref: "#/components/responses/400Response"
+  /farcaster/user-by-verification:
+    get:
+      tags:
+        - Verification
+      summary: Retrieve user for a given ethereum address
+      description: >-
+        Checks if a given Ethereum address has a Farcaster user associated with it. Note: if an address is associated with multiple users, the API will return the user who most recently published a verification with the address (based on when Warpcast received the proof, not a self-reported timestamp).
+      externalDocs:
+        url: https://docs.neynar.com/reference/user-by-verification-v1
+      operationId: user-by-verification
+      parameters:
+        - $ref: "#/components/parameters/ApiKey"
+        - name: address
+          in: query
+          required: true
+          schema:
+            $ref: "#/components/schemas/Address"
+      responses:
+        "200":
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        "400":
+          $ref: "#/components/responses/400Response"
+  /farcaster/mentions-and-replies:
+    get:
+      tags:
+        - Notifications
+      summary: Get mentions and replies
+      description: Gets a list of mentions and replies to the user’s casts in reverse chronological order
+      externalDocs:
+        url: https://docs.neynar.com/reference/mentions-and-replies-v1
+      operationId: mentions-and-replies
+      parameters:
+        - $ref: "#/components/parameters/ApiKey"
+        - name: fid
+          in: query
+          required: true
+          description: fid of a user
+          schema:
+            $ref: "#/components/schemas/Fid"
+        - name: viewerFid
+          in: query
+          description: >-
+            fid of the user viewing this information, needed for contextual
+            information.
+          required: false
+          schema:
+            $ref: "#/components/schemas/Fid"
+        - name: limit
+          in: query
+          description: Number of results to retrieve (default 25, max 150)
+          required: false
+          schema:
+            type: integer
+            default: 25
+            minimum: 1
+            maximum: 150
+        - name: cursor
+          in: query
+          description: Pagination cursor.
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MentionsAndRepliesResponse"
+        "400":
+          $ref: "#/components/responses/400Response"
+  /farcaster/reactions-and-recasts:
+    get:
+      tags:
+        - Notifications
+      summary: Get reactions and recasts
+      description: Get a list of reactions and recasts to the users’s casts in reverse chronological order
+      externalDocs:
+        url: https://docs.neynar.com/reference/reactions-and-recasts-v1
+      operationId: reactions-and-recasts
+      parameters:
+        - $ref: "#/components/parameters/ApiKey"
+        - name: fid
+          in: query
+          required: true
+          description: fid of a user
+          example: 6131
+          schema:
+            $ref: "#/components/schemas/Fid"
+        - name: viewerFid
+          in: query
+          description: >-
+            fid of the user viewing this information, needed for contextual
+            information.
+          required: false
+          example: 3
+          schema:
+            $ref: "#/components/schemas/Fid"
+        - name: limit
+          in: query
+          description: Number of results to retrieve (default 25, max 150)
+          required: false
+          schema:
+            type: integer
+            default: 25
+            minimum: 1
+            maximum: 150
+        - name: cursor
+          in: query
+          description: Pagination cursor.
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReactionsAndRecastsResponse"
+        "400":
+          $ref: "#/components/responses/400Response"
+  /farcaster/cast-likes:
+    get:
+      tags:
+        - Reactions
+      summary: Get all like reactions for a specific cast
+      description: Get all like reactions for a specific cast in reverse chronological order.
+      externalDocs:
+        url: https://docs.neynar.com/reference/cast-likes-v1
+      operationId: cast-likes
+      parameters:
+        - $ref: "#/components/parameters/ApiKey"
+        - name: castHash
+          in: query
+          required: true
+          description: Cast hash
+          schema:
+            $ref: "#/components/schemas/CastHash"
+        - name: viewerFid
+          in: query
+          description: >-
+            fid of the user viewing this information, needed for contextual
+            information.
+          required: false
+          schema:
+            $ref: "#/components/schemas/Fid"
+        - name: limit
+          in: query
+          description: Number of results to retrieve (default 25, max 150)
+          required: false
+          schema:
+            type: integer
+            default: 25
+            minimum: 1
+            maximum: 150
+        - name: cursor
+          in: query
+          description: Pagination cursor.
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CastLikesResponse"
+        "400":
+          $ref: "#/components/responses/400Response"
+  /farcaster/cast-reactions:
+    get:
+      tags:
+        - Reactions
+      summary: Get all reactions for a specific cast
+      description: Get all reactions (likes and recasts) for a specific cast.
+      externalDocs:
+        url: https://docs.neynar.com/reference/cast-reactions-v1
+      operationId: cast-reactions
+      parameters:
+        - $ref: "#/components/parameters/ApiKey"
+        - name: castHash
+          in: query
+          required: true
+          description: Cast hash
+          schema:
+            $ref: "#/components/schemas/CastHash"
+        - name: viewerFid
+          in: query
+          description: >-
+            fid of the user viewing this information, needed for contextual
+            information.
+          required: false
+          schema:
+            $ref: "#/components/schemas/Fid"
+        - name: limit
+          in: query
+          description: Number of results to retrieve (default 25, max 150)
+          required: false
+          schema:
+            type: integer
+            default: 25
+            minimum: 1
+            maximum: 150
+        - name: cursor
+          in: query
+          description: Pagination cursor.
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CastReactionsResponse"
+        "400":
+          $ref: "#/components/responses/400Response"
+  /farcaster/cast-recasters:
+    get:
+      tags:
+        - Reactions
+      summary: Get all recasters for a specific cast
+      description: Get all recasters for a specific cast.
+      externalDocs:
+        url: https://docs.neynar.com/reference/cast-recasters-v1
+      operationId: cast-recasters
+      parameters:
+        - $ref: "#/components/parameters/ApiKey"
+        - name: castHash
+          in: query
+          required: true
+          description: Cast hash
+          schema:
+            $ref: "#/components/schemas/CastHash"
+        - name: viewerFid
+          in: query
+          description: >-
+            fid of the user viewing this information, needed for contextual
+            information.
+          required: false
+          schema:
+            $ref: "#/components/schemas/Fid"
+        - name: limit
+          in: query
+          description: Number of results to retrieve (default 25, max 150)
+          required: false
+          schema:
+            type: integer
+            default: 25
+            minimum: 1
+            maximum: 150
+        - name: cursor
+          in: query
+          description: Pagination cursor.
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CastRecasterResponse"
+        "400":
+          $ref: "#/components/responses/400Response"
+  /farcaster/followers:
+    get:
+      tags:
+        - Follows
+      summary: Gets all followers for a given FID
+      description: Gets a list of users who follow a given user in reverse chronological order.
+      externalDocs:
+        url: https://docs.neynar.com/reference/followers-v1
+      operationId: followers
+      parameters:
+        - $ref: "#/components/parameters/ApiKey"
+        - name: fid
+          in: query
+          required: true
+          description: FID of the user
+          example: 6131
+          schema:
+            $ref: "#/components/schemas/Fid"
+        - name: viewerFid
+          in: query
+          description: >-
+            fid of the user viewing this information, needed for contextual
+            information.
+          required: false
+          example: 194
+          schema:
+            $ref: "#/components/schemas/Fid"
+        - name: limit
+          in: query
+          description: Number of results to retrieve (default 25, max 150)
+          required: false
+          schema:
+            type: integer
+            default: 25
+            minimum: 1
+            maximum: 150
+        - name: cursor
+          in: query
+          description: Pagination cursor.
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FollowResponse"
+        "400":
+          $ref: "#/components/responses/400Response"
+  /farcaster/following:
+    get:
+      tags:
+        - Follows
+      summary: Gets all following users of a FID
+      description: Gets a list of users who is following a given user in reverse chronological order.
+      externalDocs:
+        url: https://docs.neynar.com/reference/following-v1
+      operationId: following
+      parameters:
+        - $ref: "#/components/parameters/ApiKey"
+        - name: fid
+          in: query
+          required: true
+          description: FID of the user
+          example: 6131
+          schema:
+            $ref: "#/components/schemas/Fid"
+        - name: viewerFid
+          in: query
+          description: >-
+            fid of the user viewing this information, needed for contextual
+            information.
+          required: false
+          example: 194
+          schema:
+            $ref: "#/components/schemas/Fid"
+        - name: limit
+          in: query
+          description: Number of results to retrieve (default 25, max 150)
+          required: false
+          schema:
+            type: integer
+            default: 25
+            minimum: 1
+            maximum: 150
+        - name: cursor
+          in: query
+          description: Pagination cursor.
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FollowResponse"
+        "400":
+          $ref: "#/components/responses/400Response"

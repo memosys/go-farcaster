@@ -1,0 +1,305 @@
+openapi: 3.0.0
+info:
+  title: Recommendation API V2
+  version: "2.0"
+servers:
+- url: https://api.neynar.com/v2
+tags:
+- description: NFT Recommendations API
+  externalDocs:
+    description: NFT Recommendations API
+    url: https://docs.neynar.com/reference/
+  name: NFT
+paths:
+  /nft/relevant_mints:
+    get:
+      description: Fetches all mint actions relevant for a contract address (and optionally
+        tokenId for ERC1155s) given a user's ethereum address
+      operationId: fetch-relevant-mints
+      parameters:
+      - description: API key required for authentication.
+        explode: false
+        in: header
+        name: api_key
+        required: true
+        schema:
+          default: NEYNAR_API_DOCS
+          type: string
+        style: simple
+      - example: 0x5a927ac639636e534b678e81768ca19e2c6280b7
+        explode: true
+        in: query
+        name: address
+        required: true
+        schema:
+          $ref: '#/components/schemas/Address'
+        style: form
+      - example: 0xe8e0e543a3dd32d366cb756fa4d112f30172bcb1
+        explode: true
+        in: query
+        name: contract_address
+        required: true
+        schema:
+          $ref: '#/components/schemas/Address'
+        style: form
+      - example: "1"
+        explode: true
+        in: query
+        name: token_id
+        required: false
+        schema:
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RelevantMints'
+          description: Relevant Mints Response
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRes'
+          description: Server Error
+      summary: Relevant Mints for a User
+      tags:
+      - NFT
+components:
+  parameters:
+    ApiKey:
+      description: API key required for authentication.
+      explode: false
+      in: header
+      name: api_key
+      required: true
+      schema:
+        default: NEYNAR_API_DOCS
+        type: string
+      style: simple
+  responses:
+    ServerErrorResponse:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorRes'
+      description: Server Error
+    RelevantMintsResponse:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/RelevantMints'
+      description: Relevant Mints Response
+  schemas:
+    Address:
+      description: Ethereum address
+      type: string
+    Fid:
+      default: 3
+      description: User identifier (unsigned integer)
+      format: int32
+      type: integer
+    ActiveStatus:
+      description: |
+        The status of a user.
+          - active: The user is currently active.
+          - inactive: The user is not currently active.
+      enum:
+      - active
+      - inactive
+      type: string
+    User:
+      example:
+        fid: 6
+        activeStatus: null
+        pfp_url: pfp_url
+        following_count: 5
+        profile:
+          bio:
+            text: text
+        display_name: display_name
+        verifications:
+        - null
+        - null
+        custody_address: custody_address
+        follower_count: 1
+        object: user
+        username: username
+      properties:
+        object:
+          enum:
+          - user
+          type: string
+        fid:
+          default: 3
+          description: User identifier (unsigned integer)
+          format: int32
+          type: integer
+        username:
+          type: string
+        display_name:
+          type: string
+        custody_address:
+          description: Ethereum address
+          type: string
+        pfp_url:
+          description: The URL of the user's profile picture
+          type: string
+        profile:
+          $ref: '#/components/schemas/User_profile'
+        follower_count:
+          description: The number of followers the user has.
+          format: int32
+          type: integer
+        following_count:
+          description: The number of users the user is following.
+          format: int32
+          type: integer
+        verifications:
+          items:
+            $ref: '#/components/schemas/Address'
+          type: array
+        activeStatus:
+          $ref: '#/components/schemas/ActiveStatus'
+      required:
+      - activeStatus
+      - display_name
+      - fid
+      - follower_count
+      - following_count
+      - object
+      - pfp_url
+      - profile
+      - username
+      - verifications
+      type: object
+    ErrorRes:
+      description: Returns ErrorRes metadata
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        property:
+          type: string
+        status:
+          format: int32
+          type: integer
+      required:
+      - message
+      type: object
+    RelevantMint:
+      description: A mint object relevant to the user
+      example:
+        token_id: token_id
+        minter:
+          fid: 6
+          activeStatus: null
+          pfp_url: pfp_url
+          following_count: 5
+          profile:
+            bio:
+              text: text
+          display_name: display_name
+          verifications:
+          - null
+          - null
+          custody_address: custody_address
+          follower_count: 1
+          object: user
+          username: username
+        block_number: 0
+        tx_hash: tx_hash
+        contract_address: contract_address
+      properties:
+        contract_address:
+          description: Ethereum address
+          type: string
+        token_id:
+          type: string
+        block_number:
+          format: int32
+          type: integer
+        tx_hash:
+          type: string
+        minter:
+          $ref: '#/components/schemas/User'
+      required:
+      - block_number
+      - contract_address
+      - minter
+      - token_id
+      - tx_hash
+      type: object
+    RelevantMints:
+      description: A list of mint objects relevant to the user
+      example:
+        mints:
+        - token_id: token_id
+          minter:
+            fid: 6
+            activeStatus: null
+            pfp_url: pfp_url
+            following_count: 5
+            profile:
+              bio:
+                text: text
+            display_name: display_name
+            verifications:
+            - null
+            - null
+            custody_address: custody_address
+            follower_count: 1
+            object: user
+            username: username
+          block_number: 0
+          tx_hash: tx_hash
+          contract_address: contract_address
+        - token_id: token_id
+          minter:
+            fid: 6
+            activeStatus: null
+            pfp_url: pfp_url
+            following_count: 5
+            profile:
+              bio:
+                text: text
+            display_name: display_name
+            verifications:
+            - null
+            - null
+            custody_address: custody_address
+            follower_count: 1
+            object: user
+            username: username
+          block_number: 0
+          tx_hash: tx_hash
+          contract_address: contract_address
+      properties:
+        mints:
+          items:
+            $ref: '#/components/schemas/RelevantMint'
+          type: array
+      required:
+      - mints
+      type: object
+    User_profile_bio:
+      example:
+        text: text
+      properties:
+        text:
+          type: string
+      required:
+      - text
+      type: object
+    User_profile:
+      example:
+        bio:
+          text: text
+      properties:
+        bio:
+          $ref: '#/components/schemas/User_profile_bio'
+      required:
+      - bio
+      type: object

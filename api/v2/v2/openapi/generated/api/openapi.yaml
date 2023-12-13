@@ -1,0 +1,3037 @@
+openapi: 3.0.0
+info:
+  title: Farcaster API V2
+  version: "2.0"
+servers:
+- url: https://api.neynar.com/v2
+tags:
+- description: Operations related to user
+  externalDocs:
+    description: More info about user
+    url: https://docs.neynar.com/reference/user-operations
+  name: User
+- description: Operations related to signer
+  externalDocs:
+    description: More info about signer
+    url: https://docs.neynar.com/reference/signer-operations
+  name: Signer
+- description: Operations related to cast
+  externalDocs:
+    description: More info about cast
+    url: https://docs.neynar.com/reference/cast-operations
+  name: Cast
+- description: Operations related to feed
+  externalDocs:
+    description: More info about feed
+    url: https://docs.neynar.com/reference/feed-operations
+  name: Feed
+- description: Operations related to reaction
+  externalDocs:
+    description: More info about reaction
+    url: https://docs.neynar.com/reference/reaction-operations
+  name: Reaction
+- description: Operations related to notifications
+  externalDocs:
+    description: More info about notifications
+    url: https://docs.neynar.com/reference/notifications-operations
+  name: Notifications
+- description: Operations related to follows
+  externalDocs:
+    description: More info about follows
+    url: https://docs.neynar.com/reference/follows-operations
+  name: Follows
+- description: Operations related to storage
+  externalDocs:
+    description: More info about storage
+    url: https://docs.neynar.com/reference/storage-operations
+  name: Storage
+paths:
+  /farcaster/signer:
+    get:
+      description: Gets information status of a signer by passing in a signer_uuid
+        (Use post API to generate a signer)
+      externalDocs:
+        url: https://docs.neynar.com/reference/signer
+      operationId: signer
+      parameters:
+      - description: API key required for authentication.
+        explode: false
+        in: header
+        name: api_key
+        required: true
+        schema:
+          default: NEYNAR_API_DOCS
+          type: string
+        style: simple
+      - example: 19d0c5fd-9b33-4a48-a0e2-bc7b0555baec
+        explode: true
+        in: query
+        name: signer_uuid
+        required: true
+        schema:
+          $ref: '#/components/schemas/SignerUUID'
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Signer'
+          description: Successful operation.
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRes'
+          description: Bad Request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRes'
+          description: Resource not found
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRes'
+          description: Forbidden
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRes'
+          description: Server Error
+      summary: Fetches the status of a signer
+      tags:
+      - Signer
+    post:
+      description: |
+        Creates a signer and returns the signer status. \
+        **Note**: While tesing please reuse the signer, it costs money to approve a signer.
+      externalDocs:
+        url: https://docs.neynar.com/reference/create-signer
+      operationId: create-signer
+      parameters:
+      - description: API key required for authentication.
+        explode: false
+        in: header
+        name: api_key
+        required: true
+        schema:
+          default: NEYNAR_API_DOCS
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Signer'
+          description: Successful operation.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRes'
+          description: Server Error
+      summary: Creates a signer and returns the signer status
+      tags:
+      - Signer
+  /farcaster/signer/signed_key:
+    post:
+      description: "Registers an app fid, deadline and a signature. Returns the signer\
+        \ status with an approval url."
+      externalDocs:
+        url: https://docs.neynar.com/reference/register-signed-key
+      operationId: register-signed-key
+      parameters:
+      - description: API key required for authentication.
+        explode: false
+        in: header
+        name: api_key
+        required: true
+        schema:
+          default: NEYNAR_API_DOCS
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            example:
+              signer_uuid: 19d0c5fd-9b33-4a48-a0e2-bc7b0555baec
+              app_fid: 18949
+              deadline: 1693627665
+              signature: 0xe5d95c391e165dac8efea373efe301d3ea823e1f41713f8943713cbe2850566672e33ff3e17e19abb89703f650a2597f62b4fda0ce28ca15d59eb6d4e971ee531b
+            schema:
+              $ref: '#/components/schemas/RegisterSignerKeyReqBody'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Signer'
+          description: Successful operation
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRes'
+          description: Bad Request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRes'
+          description: Resource not found
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRes'
+          description: Forbidden
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRes'
+          description: Server Error
+      summary: Register Signed Key
+      tags:
+      - Signer
+  /farcaster/user/search:
+    get:
+      description: Search for Usernames
+      externalDocs:
+        url: https://docs.neynar.com/reference/user-search
+      operationId: user-search
+      parameters:
+      - description: API key required for authentication.
+        explode: false
+        in: header
+        name: api_key
+        required: true
+        schema:
+          default: NEYNAR_API_DOCS
+          type: string
+        style: simple
+      - example: r
+        explode: true
+        in: query
+        name: q
+        required: true
+        schema:
+          type: string
+        style: form
+      - example: 3
+        explode: true
+        in: query
+        name: viewer_fid
+        required: true
+        schema:
+          $ref: '#/components/schemas/Fid'
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSearchResponse'
+          description: Successful operation.
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRes'
+          description: Bad Request
+      summary: Search for Usernames
+      tags:
+      - User
+  /farcaster/user/bulk:
+    get:
+      description: Fetches information about multiple users based on FIDs
+      externalDocs:
+        url: https://docs.neynar.com/reference/user-bulk
+      operationId: user-bulk
+      parameters:
+      - description: API key required for authentication.
+        explode: false
+        in: header
+        name: api_key
+        required: true
+        schema:
+          default: NEYNAR_API_DOCS
+          type: string
+        style: simple
+      - example: "194, 191, 6131"
+        explode: true
+        in: query
+        name: fids
+        required: true
+        schema:
+          type: string
+        style: form
+      - example: 3
+        explode: true
+        in: query
+        name: viewer_fid
+        required: false
+        schema:
+          $ref: '#/components/schemas/Fid'
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkUsersResponse'
+          description: Successful operation.
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRes'
+          description: Bad Request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRes'
+          description: Resource not found
+      summary: Fetches information about multiple users based on FIDs
+      tags:
+      - User
+  /farcaster/user:
+    patch:
+      description: |
+        Update user profile \
+        (In order to update user's profile `signer_uuid` must be approved)
+      externalDocs:
+        url: https://docs.neynar.com/reference/update-user
+      operationId: update-user
+      parameters:
+      - description: API key required for authentication.
+        explode: false
+        in: header
+        name: api_key
+        required: true
+        schema:
+          default: NEYNAR_API_DOCS
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            example:
+              signer_uuid: 19d0c5fd-9b33-4a48-a0e2-bc7b0555baec
+              bio: Hey there..!!!
+              pfp_url: https://i.imgur.com/keIWEYM.jpg
+              username: dan
+              display_name: Dan Romero
+            schema:
+              $ref: '#/components/schemas/UpdateUserReqBody'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+          description: Successful operation.
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRes'
+          description: Bad Request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRes'
+          description: Resource not found
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRes'
+          description: Forbidden
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRes'
+          description: Server Error
+      summary: Update user profile
+      tags:
+      - User
+  /farcaster/cast:
+    delete:
+      description: |
+        Delete an existing cast. \
+        (In order to delete a cast `signer_uuid` must be approved)
+      externalDocs:
+        url: https://docs.neynar.com/reference/delete-cast
+      operationId: delete-cast
+      parameters:
+      - description: API key required for authentication.
+        explode: false
+        in: header
+        name: api_key
+        required: true
+        schema:
+          default: NEYNAR_API_DOCS
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            example:
+              signer_uuid: 19d0c5fd-9b33-4a48-a0e2-bc7b0555baec
+              target_hash: 0x1ea99cbed57e4020314ba3fadd7c692d2de34d5f
+            schema:
+              $ref: '#/components/schemas/DeleteCastReqBody'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+          description: Successful operation.
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRes'
+          description: Bad Request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRes'
+          description: Resource not found
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRes'
+          description: Forbidden
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRes'
+          description: Server Error
+      summary: Delete a cast
+      tags:
+      - Cast
+    get:
+      description: Gets information about an individual cast by passing in a Warpcast
+        web URL or cast hash
+      externalDocs:
+        url: https://docs.neynar.com/reference/cast
+      operationId: cast
+      parameters:
+      - description: API key required for authentication.
+        explode: false
+        in: header
+        name: api_key
+        required: true
+        schema:
+          default: NEYNAR_API_DOCS
+          type: string
+        style: simple
+      - description: Cast identifier (Its either a url or a hash)
+        example: https://warpcast.com/rish/0x9288c1
+        explode: true
+        in: query
+        name: identifier
+        required: true
+        schema:
+          type: string
+        style: form
+      - example: url
+        explode: true
+        in: query
+        name: type
+        required: true
+        schema:
+          $ref: '#/components/schemas/CastParamType'
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CastResponse'
+          description: Successful operation.
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRes'
+          description: Bad Request
+      summary: Retrieve cast for a given hash or Warpcast URL
+      tags:
+      - Cast
+    post:
+      description: "Posts a cast or cast reply. Works with mentions and embeds.  \n\
+        (In order to post a cast `signer_uuid` must be approved)\n"
+      externalDocs:
+        url: https://docs.neynar.com/reference/post-cast
+      operationId: post-cast
+      parameters:
+      - description: API key required for authentication.
+        explode: false
+        in: header
+        name: api_key
+        required: true
+        schema:
+          default: NEYNAR_API_DOCS
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            example:
+              signer_uuid: 19d0c5fd-9b33-4a48-a0e2-bc7b0555baec
+              text: Writing to @farcaster via the @neynar APIs 🪐
+            schema:
+              $ref: '#/components/schemas/PostCastReqBody'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostCastResponse'
+          description: Successful operation.
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRes'
+          description: Bad Request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRes'
+          description: Resource not found
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRes'
+          description: Forbidden
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRes'
+          description: Server Error
+      summary: Posts a cast
+      tags:
+      - Cast
+  /farcaster/casts:
+    get:
+      description: Retrieve multiple casts using their respective hashes.
+      externalDocs:
+        url: https://docs.neynar.com/reference/casts
+      operationId: casts
+      parameters:
+      - description: API key required for authentication.
+        explode: false
+        in: header
+        name: api_key
+        required: true
+        schema:
+          default: NEYNAR_API_DOCS
+          type: string
+        style: simple
+      - description: Hashes of the cast to be retrived (Comma separated)
+        example: "0xa896906a5e397b4fec247c3ee0e9e4d4990b8004,0x27ff810f7f718afd8c40be236411f017982e0994"
+        explode: true
+        in: query
+        name: casts
+        required: true
+        schema:
+          type: string
+        style: form
+      - description: Optional parameter to sort the casts based on different criteria
+        explode: true
+        in: query
+        name: sort_type
+        required: false
+        schema:
+          enum:
+          - trending
+          - likes
+          - recasts
+          - replies
+          - recent
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CastsResponse'
+          description: Successful operation.
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRes'
+          description: Bad Request
+      summary: Gets information about an array of casts
+      tags:
+      - Cast
+  /farcaster/feed:
+    get:
+      externalDocs:
+        url: https://docs.neynar.com/reference/feed
+      operationId: feed
+      parameters:
+      - description: API key required for authentication.
+        explode: false
+        in: header
+        name: api_key
+        required: true
+        schema:
+          default: NEYNAR_API_DOCS
+          type: string
+        style: simple
+      - description: Defaults to following (requires fid or address). If set to filter
+          (requires filter_type)
+        example: filter
+        explode: true
+        in: query
+        name: feed_type
+        required: true
+        schema:
+          $ref: '#/components/schemas/FeedType'
+        style: form
+      - description: Used when feed_type=filter. Can be set to fids (requires fids)
+          or parent_url (requires parent_url)
+        example: fids
+        explode: true
+        in: query
+        name: filter_type
+        required: false
+        schema:
+          $ref: '#/components/schemas/FilterType'
+        style: form
+      - description: "(Optional) fid of user whose feed you want to create. By default,\
+          \ the API expects this field, except if you pass a filter_type"
+        explode: true
+        in: query
+        name: fid
+        required: false
+        schema:
+          $ref: '#/components/schemas/Fid'
+        style: form
+      - description: Used when filter_type=fids . Create a feed based on a list of
+          fids. Max array size is 250. Requires feed_type and filter_type.
+        example: "3,2,194"
+        explode: true
+        in: query
+        name: fids
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Used when filter_type=parent_url can be used to fetch content
+          under any parent url e.g. FIP-2 channels on Warpcast. Requires feed_type
+          and filter_type
+        explode: true
+        in: query
+        name: parent_url
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Used when filter_type=embed_url can be used to fetch all casts
+          with an embed url that contains embed_url. Requires feed_type and filter_type
+        explode: true
+        in: query
+        name: embed_url
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: "Include recasts in the response, true by default"
+        explode: true
+        in: query
+        name: with_recasts
+        required: false
+        schema:
+          default: true
+          type: boolean
+        style: form
+      - description: "Number of results to retrieve (default 25, max 100)"
+        explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 25
+          maximum: 100
+          minimum: 1
+          type: integer
+        style: form
+      - description: Pagination cursor.
+        explode: true
+        in: query
+        name: cursor
+        required: false
+        schema:
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeedResponse'
+          description: Successful operation.
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRes'
+          description: Bad Request
+      summary: Retrieve casts based on filters
+      tags:
+      - Feed
+  /farcaster/reaction:
+    delete:
+      description: |
+        Delete a reaction (like or recast) to a given cast \
+        (In order to delete a reaction `signer_uuid` must be approved)
+      externalDocs:
+        url: https://docs.neynar.com/reference/delete-reaction
+      operationId: delete-reaction
+      parameters:
+      - description: API key required for authentication.
+        explode: false
+        in: header
+        name: api_key
+        required: true
+        schema:
+          default: NEYNAR_API_DOCS
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            example:
+              signer_uuid: 19d0c5fd-9b33-4a48-a0e2-bc7b0555baec
+              target: 0x1ea99cbed57e4020314ba3fadd7c692d2de34d5f
+              reaction_type: like
+            schema:
+              $ref: '#/components/schemas/ReactionReqBody'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+          description: Successful operation.
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRes'
+          description: Bad Request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRes'
+          description: Resource not found
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRes'
+          description: Forbidden
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRes'
+          description: Server Error
+      summary: Delete a reaction
+      tags:
+      - Reaction
+    post:
+      description: |
+        Post a reaction (like or recast) to a given cast \
+        (In order to post a reaction `signer_uuid` must be approved)
+      externalDocs:
+        url: https://docs.neynar.com/reference/post-reaction
+      operationId: post-reaction
+      parameters:
+      - description: API key required for authentication.
+        explode: false
+        in: header
+        name: api_key
+        required: true
+        schema:
+          default: NEYNAR_API_DOCS
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            example:
+              signer_uuid: 19d0c5fd-9b33-4a48-a0e2-bc7b0555baec
+              target: 0x1ea99cbed57e4020314ba3fadd7c692d2de34d5f
+              reaction_type: like
+            schema:
+              $ref: '#/components/schemas/ReactionReqBody'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+          description: Successful operation.
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRes'
+          description: Bad Request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRes'
+          description: Resource not found
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRes'
+          description: Forbidden
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRes'
+          description: Server Error
+      summary: Posts a reaction
+      tags:
+      - Reaction
+  /farcaster/user/verification:
+    delete:
+      description: |
+        Removes verification for an eth address for the user \
+        (In order to delete verification `signer_uuid` must be approved)
+      externalDocs:
+        url: https://docs.neynar.com/reference/remove-verification
+      parameters:
+      - description: API key required for authentication.
+        explode: false
+        in: header
+        name: api_key
+        required: true
+        schema:
+          default: NEYNAR_API_DOCS
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            example:
+              signer_uuid: 19d0c5fd-9b33-4a48-a0e2-bc7b0555baec
+              address: 0x1ea99cbed57e4020314ba3fadd7c692d2de34d5f
+            schema:
+              $ref: '#/components/schemas/RemoveVerificationReqBody'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+          description: Successful operation.
+      summary: Removes verification for an eth address for the user
+      tags:
+      - User
+    post:
+      description: |
+        Adds verification for an eth address for the user \
+        (In order to add verification `signer_uuid` must be approved)
+      externalDocs:
+        url: https://docs.neynar.com/reference/add-verification
+      parameters:
+      - description: API key required for authentication.
+        explode: false
+        in: header
+        name: api_key
+        required: true
+        schema:
+          default: NEYNAR_API_DOCS
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            example:
+              signer_uuid: 19d0c5fd-9b33-4a48-a0e2-bc7b0555baec
+              address: 0x1ea99cbed57e4020314ba3fadd7c692d2de34d5f
+              block_hash: 0x191905a9201170abb55f4c90a4cc968b44c1b71cdf3db2764b775c93e7e22b29
+              eth_signature: 0x2fc09da1f4dcb723fefb91f77932c249c418c0af00c66ed92ee1f35002c80d6a1145280c9f361d207d28447f8f7463366840d3a9309036cf6954afd1fd331beb1b
+            schema:
+              $ref: '#/components/schemas/AddVerificationReqBody'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+          description: Successful operation.
+      summary: Adds verification for an eth address for the user
+      tags:
+      - User
+  /farcaster/user/follow:
+    delete:
+      description: |
+        Unfollow a user \
+        (In order to unfollow a user `signer_uuid` must be approved)
+      externalDocs:
+        url: https://docs.neynar.com/reference/unfollow-user
+      operationId: unfollow-user
+      parameters:
+      - description: API key required for authentication.
+        explode: false
+        in: header
+        name: api_key
+        required: true
+        schema:
+          default: NEYNAR_API_DOCS
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            example:
+              signer_uuid: 19d0c5fd-9b33-4a48-a0e2-bc7b0555baec
+              target_fids:
+              - 3
+              - 194
+            schema:
+              $ref: '#/components/schemas/FollowReqBody'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkFollowResponse'
+          description: Successful operation.
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRes'
+          description: Bad Request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRes'
+          description: Resource not found
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRes'
+          description: Forbidden
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRes'
+          description: Server Error
+      summary: Unfollow a user
+      tags:
+      - User
+    post:
+      description: |
+        Follow a user \
+        (In order to follow a user `signer_uuid` must be approved)
+      externalDocs:
+        url: https://docs.neynar.com/reference/follow-user
+      operationId: follow-user
+      parameters:
+      - description: API key required for authentication.
+        explode: false
+        in: header
+        name: api_key
+        required: true
+        schema:
+          default: NEYNAR_API_DOCS
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            example:
+              signer_uuid: 19d0c5fd-9b33-4a48-a0e2-bc7b0555baec
+              target_fids:
+              - 3
+              - 194
+            schema:
+              $ref: '#/components/schemas/FollowReqBody'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkFollowResponse'
+          description: Successful operation.
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRes'
+          description: Bad Request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRes'
+          description: Resource not found
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRes'
+          description: Forbidden
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRes'
+          description: Server Error
+      summary: Follow a user
+      tags:
+      - User
+  /farcaster/user/custody-address:
+    get:
+      description: Lookup a user by custody-address
+      externalDocs:
+        url: https://docs.neynar.com/reference/lookup-user-by-custody-address
+      operationId: lookup-user-by-custody-address
+      parameters:
+      - description: API key required for authentication.
+        explode: false
+        in: header
+        name: api_key
+        required: true
+        schema:
+          default: NEYNAR_API_DOCS
+          type: string
+        style: simple
+      - description: Custody Address associated with mnemonic
+        example: 0xd1b702203b1b3b641a699997746bd4a12d157909
+        explode: true
+        in: query
+        name: custody_address
+        required: true
+        schema:
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+          description: Successful operation.
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRes'
+          description: Bad Request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRes'
+          description: Resource not found
+      summary: Lookup a user by custody-address
+      tags:
+      - User
+  /farcaster/notifications:
+    get:
+      description: Returns a list of notifications for a specific FID.
+      externalDocs:
+        url: https://docs.neynar.com/reference/notifications
+      operationId: notifications
+      parameters:
+      - description: API key required for authentication.
+        explode: false
+        in: header
+        name: api_key
+        required: true
+        schema:
+          default: NEYNAR_API_DOCS
+          type: string
+        style: simple
+      - explode: true
+        in: query
+        name: fid
+        required: true
+        schema:
+          $ref: '#/components/schemas/Fid'
+        style: form
+      - description: "Number of results to retrieve (default 25, max 50)"
+        explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 25
+          maximum: 50
+          minimum: 1
+          type: integer
+        style: form
+      - description: Pagination cursor.
+        explode: true
+        in: query
+        name: cursor
+        required: false
+        schema:
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationsResponse'
+          description: Successful response
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRes'
+          description: Bad Request
+      summary: Retrieve notifications for a given user
+      tags:
+      - Notifications
+  /farcaster/notifications/channel:
+    get:
+      description: Returns a list of notifications for a user in a specific channel
+      externalDocs:
+        url: https://docs.neynar.com/reference/notifications
+      operationId: notifications-channel
+      parameters:
+      - description: API key required for authentication.
+        explode: false
+        in: header
+        name: api_key
+        required: true
+        schema:
+          default: NEYNAR_API_DOCS
+          type: string
+        style: simple
+      - explode: true
+        in: query
+        name: fid
+        required: true
+        schema:
+          $ref: '#/components/schemas/Fid'
+        style: form
+      - description: Comma separated channel parent_urls (find mappings here - https://github.com/neynarxyz/farcaster-channels/blob/main/warpcast.json)
+        example: chain://eip155:1/erc721:0xd4498134211baad5846ce70ce04e7c4da78931cc
+        explode: true
+        in: query
+        name: parent_urls
+        required: true
+        schema:
+          type: string
+        style: form
+      - description: "Number of results to retrieve (default 25, max 50)"
+        explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 25
+          maximum: 50
+          minimum: 1
+          type: integer
+        style: form
+      - description: Pagination cursor.
+        explode: true
+        in: query
+        name: cursor
+        required: false
+        schema:
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationsResponse'
+          description: Successful response
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRes'
+          description: Bad Request
+      summary: Retrieve notifications for a user for a given channel
+      tags:
+      - Notifications
+  /farcaster/followers/relevant:
+    get:
+      description: Returns a list of relevant followers for a specific FID.
+      externalDocs:
+        url: https://docs.neynar.com/reference/relevant-followers
+      operationId: relevant-followers
+      parameters:
+      - description: API key required for authentication.
+        explode: false
+        in: header
+        name: api_key
+        required: true
+        schema:
+          default: NEYNAR_API_DOCS
+          type: string
+        style: simple
+      - description: User who's profile you are looking at
+        explode: true
+        in: query
+        name: target_fid
+        required: true
+        schema:
+          $ref: '#/components/schemas/Fid'
+        style: form
+      - description: Viewer who's looking at the profile
+        explode: true
+        in: query
+        name: viewer_fid
+        required: true
+        schema:
+          $ref: '#/components/schemas/Fid'
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RelevantFollowersResponse'
+          description: Successful response
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRes'
+          description: Bad Request
+      summary: Retrieve relevant followers for a given user
+      tags:
+      - Follows
+  /farcaster/reactions/user:
+    get:
+      description: Fetches reactions for a given user
+      externalDocs:
+        url: https://docs.neynar.com/reference/reactions
+      operationId: reactions-user
+      parameters:
+      - description: API key required for authentication.
+        explode: false
+        in: header
+        name: api_key
+        required: true
+        schema:
+          default: NEYNAR_API_DOCS
+          type: string
+        style: simple
+      - example: 3
+        explode: true
+        in: query
+        name: fid
+        required: true
+        schema:
+          $ref: '#/components/schemas/Fid'
+        style: form
+      - description: Type of reaction to fetch (likes or recasts or all)
+        example: likes
+        explode: true
+        in: query
+        name: type
+        required: true
+        schema:
+          $ref: '#/components/schemas/ReactionsType'
+        style: form
+      - description: "Number of results to retrieve (default 25, max 100)"
+        explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 25
+          maximum: 100
+          minimum: 1
+          type: integer
+        style: form
+      - description: Pagination cursor.
+        explode: true
+        in: query
+        name: cursor
+        required: false
+        schema:
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReactionsResponse'
+          description: Successful operation.
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRes'
+          description: Bad Request
+      summary: Fetches reactions for a given user
+      tags:
+      - Reaction
+  /farcaster/storage/allocations:
+    get:
+      description: Fetches storage allocations for a given user
+      externalDocs:
+        url: https://docs.neynar.com/reference/storage-allocations
+      operationId: storage-allocations
+      parameters:
+      - description: API key required for authentication.
+        explode: false
+        in: header
+        name: api_key
+        required: true
+        schema:
+          default: NEYNAR_API_DOCS
+          type: string
+        style: simple
+      - example: 3
+        explode: true
+        in: query
+        name: fid
+        required: true
+        schema:
+          $ref: '#/components/schemas/Fid'
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StorageAllocationsResponse'
+          description: A list of storage allocations
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRes'
+          description: Bad Request
+      summary: Fetches storage allocations for a given user
+      tags:
+      - Storage
+  /farcaster/storage/usage:
+    get:
+      description: Fetches storage usage for a given user
+      externalDocs:
+        url: https://docs.neynar.com/reference/storage-usage
+      operationId: storage-usage
+      parameters:
+      - description: API key required for authentication.
+        explode: false
+        in: header
+        name: api_key
+        required: true
+        schema:
+          default: NEYNAR_API_DOCS
+          type: string
+        style: simple
+      - example: 3
+        explode: true
+        in: query
+        name: fid
+        required: true
+        schema:
+          $ref: '#/components/schemas/Fid'
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StorageUsageResponse'
+          description: Details of storage usage
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRes'
+          description: Bad Request
+      summary: Fetches storage usage for a given user
+      tags:
+      - Storage
+components:
+  parameters:
+    ApiKey:
+      description: API key required for authentication.
+      explode: false
+      in: header
+      name: api_key
+      required: true
+      schema:
+        default: NEYNAR_API_DOCS
+        type: string
+      style: simple
+  responses:
+    "404Response":
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorRes'
+      description: Resource not found
+    "400Response":
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorRes'
+      description: Bad Request
+    "403Response":
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorRes'
+      description: Forbidden
+    "500Response":
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorRes'
+      description: Server Error
+  schemas:
+    Address:
+      description: Ethereum address
+      type: string
+    Fid:
+      description: User identifier (unsigned integer)
+      format: int32
+      type: integer
+    SignerUUID:
+      description: UUID of the signer
+      type: string
+    ActiveStatus:
+      description: |
+        The status of a user.
+          - active: The user is currently active.
+          - inactive: The user is not currently active.
+      enum:
+      - active
+      - inactive
+      type: string
+    ReactionType:
+      enum:
+      - like
+      - recast
+      type: string
+    ReactionsType:
+      enum:
+      - likes
+      - recasts
+      - all
+      type: string
+    NextCursor:
+      description: Returns next cursor
+      example:
+        cursor: cursor
+      properties:
+        cursor:
+          nullable: true
+          type: string
+      required:
+      - cursor
+      type: object
+    CastNotificationType:
+      description: |
+        The notification type of a cast.
+      enum:
+      - cast-mention
+      - cast-reply
+      type: string
+    CastParamType:
+      description: |
+        The query param accepted by the API. Sent along with identifier param.
+        url - Cast identifier is a url
+        hash - Cast identifier is a hash
+      enum:
+      - url
+      - hash
+      type: string
+    ErrorRes:
+      description: Returns ErrorRes metadata
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        property:
+          type: string
+        status:
+          format: int32
+          type: integer
+      required:
+      - message
+      type: object
+    Timestamp:
+      format: date-time
+      type: string
+    IndividualHashObj:
+      properties:
+        hash:
+          type: string
+      required:
+      - hash
+      type: object
+    EmbedUrl:
+      properties:
+        url:
+          type: string
+      required:
+      - url
+      type: object
+    CastId:
+      properties:
+        fid:
+          description: User identifier (unsigned integer)
+          format: int32
+          type: integer
+        hash:
+          type: string
+      required:
+      - fid
+      - hash
+      type: object
+    EmbedCastId:
+      properties:
+        cast_id:
+          $ref: '#/components/schemas/CastId'
+      required:
+      - cast_id
+      type: object
+    ReactionLike:
+      properties:
+        fid:
+          description: User identifier (unsigned integer)
+          format: int32
+          type: integer
+      required:
+      - fid
+      type: object
+    ReactionRecast:
+      properties:
+        fid:
+          description: User identifier (unsigned integer)
+          format: int32
+          type: integer
+        fname:
+          type: string
+      required:
+      - fid
+      - fname
+      type: object
+    User:
+      example:
+        fid: 0
+        active_status: null
+        pfp_url: pfp_url
+        following_count: 1
+        viewer_context:
+          followed_by: true
+          following: true
+        profile:
+          bio:
+            mentioned_profiles:
+            - mentioned_profiles
+            - mentioned_profiles
+            text: text
+        display_name: display_name
+        verifications:
+        - null
+        - null
+        custody_address: custody_address
+        follower_count: 6
+        object: user
+        username: username
+      properties:
+        object:
+          enum:
+          - user
+          type: string
+        fid:
+          description: User identifier (unsigned integer)
+          format: int32
+          type: integer
+        username:
+          type: string
+        display_name:
+          type: string
+        custody_address:
+          description: Ethereum address
+          type: string
+        pfp_url:
+          description: The URL of the user's profile picture
+          type: string
+        profile:
+          $ref: '#/components/schemas/User_profile'
+        follower_count:
+          description: The number of followers the user has.
+          format: int32
+          type: integer
+        following_count:
+          description: The number of users the user is following.
+          format: int32
+          type: integer
+        verifications:
+          items:
+            $ref: '#/components/schemas/Address'
+          type: array
+        active_status:
+          $ref: '#/components/schemas/ActiveStatus'
+        viewer_context:
+          $ref: '#/components/schemas/User_viewer_context'
+      required:
+      - active_status
+      - display_name
+      - fid
+      - follower_count
+      - following_count
+      - object
+      - pfp_url
+      - profile
+      - username
+      - verifications
+      type: object
+    EmbeddedCast:
+      oneOf:
+      - $ref: '#/components/schemas/EmbedUrl'
+      - $ref: '#/components/schemas/EmbedCastId'
+    Cast:
+      properties:
+        hash:
+          type: string
+        parent_hash:
+          nullable: true
+          type: string
+        parent_url:
+          nullable: true
+          type: string
+        parent_author:
+          $ref: '#/components/schemas/Cast_parent_author'
+        author:
+          $ref: '#/components/schemas/User'
+        text:
+          type: string
+        timestamp:
+          format: date-time
+          type: string
+        embeds:
+          items:
+            $ref: '#/components/schemas/EmbeddedCast'
+          type: array
+        type:
+          $ref: '#/components/schemas/CastNotificationType'
+      required:
+      - author
+      - embeds
+      - hash
+      - parent_author
+      - parent_hash
+      - parent_url
+      - text
+      - timestamp
+      type: object
+    ProfileUrl:
+      properties:
+        pfp:
+          $ref: '#/components/schemas/ProfileUrl_pfp'
+      required:
+      - pfp
+      type: object
+    SearchedUser:
+      allOf:
+      - $ref: '#/components/schemas/User'
+      - $ref: '#/components/schemas/ProfileUrl'
+    RegisterSignerKeyReqBody:
+      example:
+        app_fid: 0
+        signer_uuid: signer_uuid
+        signature: signature
+        deadline: 6
+      properties:
+        signer_uuid:
+          description: UUID of the signer
+          type: string
+        signature:
+          description: "Signature generated by the custody address of the app. Signed\
+            \ data includes app_fid, deadline, signer’s public key"
+          type: string
+        app_fid:
+          description: Application FID
+          type: integer
+        deadline:
+          description: unix timestamp in seconds that controls how long the signed
+            key request is valid for. (24 hours from now is recommended)
+          type: integer
+      required:
+      - app_fid
+      - deadline
+      - signature
+      - signer_uuid
+      type: object
+    CastParent:
+      description: Parent URL or Cast Hash
+      type: string
+    PostCastReqBody:
+      example:
+        parent: parent
+        signer_uuid: signer_uuid
+        text: text
+        embeds:
+        - null
+        - null
+      properties:
+        signer_uuid:
+          description: UUID of the signer
+          type: string
+        text:
+          type: string
+        embeds:
+          items:
+            $ref: '#/components/schemas/EmbeddedCast'
+          type: array
+        parent:
+          description: Parent URL or Cast Hash
+          type: string
+      required:
+      - signer_uuid
+      type: object
+    ReactionReqBody:
+      example:
+        signer_uuid: signer_uuid
+        reaction_type: null
+        target: target
+      properties:
+        signer_uuid:
+          description: UUID of the signer
+          type: string
+        reaction_type:
+          $ref: '#/components/schemas/ReactionType'
+        target:
+          type: string
+      required:
+      - reaction_type
+      - signer_uuid
+      - target
+      type: object
+    GetCastsReqBody:
+      properties:
+        casts:
+          items:
+            $ref: '#/components/schemas/IndividualHashObj'
+          type: array
+      type: object
+    DeleteCastReqBody:
+      example:
+        signer_uuid: signer_uuid
+        target_hash: target_hash
+      properties:
+        signer_uuid:
+          description: UUID of the signer
+          type: string
+        target_hash:
+          description: Ethereum address
+          type: string
+      required:
+      - signer_uuid
+      - target_hash
+      type: object
+    FollowReqBody:
+      example:
+        signer_uuid: signer_uuid
+        target_fids:
+        - null
+        - null
+      properties:
+        signer_uuid:
+          description: UUID of the signer
+          type: string
+        target_fids:
+          items:
+            $ref: '#/components/schemas/Fid'
+          type: array
+      required:
+      - signer_uuid
+      - target_fids
+      type: object
+    AddVerificationReqBody:
+      example:
+        address: address
+        signer_uuid: signer_uuid
+        eth_signature: eth_signature
+        block_hash: block_hash
+      properties:
+        signer_uuid:
+          description: UUID of the signer
+          type: string
+        address:
+          description: Ethereum address
+          type: string
+        block_hash:
+          type: string
+        eth_signature:
+          type: string
+      required:
+      - address
+      - block_hash
+      - eth_signature
+      - signer_uuid
+      type: object
+    RemoveVerificationReqBody:
+      example:
+        address: address
+        signer_uuid: signer_uuid
+      properties:
+        signer_uuid:
+          description: UUID of the signer
+          type: string
+        address:
+          description: Ethereum address
+          type: string
+      required:
+      - address
+      - block_hash
+      - eth_signature
+      - signer_uuid
+      type: object
+    UpdateUserReqBody:
+      example:
+        signer_uuid: signer_uuid
+        pfp_url: pfp_url
+        bio: bio
+        display_name: display_name
+        url: url
+        username: username
+      properties:
+        signer_uuid:
+          description: UUID of the signer
+          type: string
+        bio:
+          type: string
+        pfp_url:
+          type: string
+        url:
+          type: string
+        username:
+          type: string
+        display_name:
+          type: string
+      required:
+      - signer_uuid
+      type: object
+    CastWithInteractionsReactions:
+      properties:
+        likes:
+          items:
+            $ref: '#/components/schemas/ReactionLike'
+          type: array
+        recasts:
+          items:
+            $ref: '#/components/schemas/ReactionRecast'
+          type: array
+      required:
+      - likes
+      - recasts
+      type: object
+    CastWithInteractionsReplies:
+      properties:
+        count:
+          format: int32
+          type: integer
+      required:
+      - count
+      type: object
+    CastWithInteractions:
+      allOf:
+      - $ref: '#/components/schemas/Cast'
+      - properties:
+          reactions:
+            $ref: '#/components/schemas/CastWithInteractionsReactions'
+          replies:
+            $ref: '#/components/schemas/CastWithInteractionsReplies'
+          thread_hash:
+            nullable: true
+            type: string
+          mentioned_profiles:
+            items:
+              $ref: '#/components/schemas/User'
+            type: array
+        required:
+        - mentioned_profiles
+        - reactions
+        - replies
+        - thread_hash
+      type: object
+    Signer:
+      example:
+        public_key: public_key
+        signer_approval_url: signer_approval_url
+        fid: 0
+        signer_uuid: signer_uuid
+        status: generated
+      properties:
+        signer_uuid:
+          description: UUID of the signer
+          type: string
+        public_key:
+          type: string
+        status:
+          enum:
+          - generated
+          - pending_approval
+          - approved
+          - revoked
+          type: string
+        signer_approval_url:
+          type: string
+        fid:
+          description: User identifier (unsigned integer)
+          format: int32
+          type: integer
+      required:
+      - public_key
+      - signer_uuid
+      - status
+      type: object
+    CastResponse:
+      example:
+        cast: null
+      properties:
+        cast:
+          $ref: '#/components/schemas/CastWithInteractions'
+      required:
+      - cast
+      type: object
+    UserSearchResponse:
+      example:
+        result:
+          users:
+          - null
+          - null
+      properties:
+        result:
+          $ref: '#/components/schemas/UserSearchResponse_result'
+      required:
+      - result
+      type: object
+    CastsResponse:
+      example:
+        result:
+          casts:
+          - null
+          - null
+      properties:
+        result:
+          $ref: '#/components/schemas/CastsResponse_result'
+      required:
+      - result
+      type: object
+    FeedResponse:
+      example:
+        next:
+          cursor: cursor
+        casts:
+        - null
+        - null
+      properties:
+        casts:
+          items:
+            $ref: '#/components/schemas/CastWithInteractions'
+          type: array
+        next:
+          $ref: '#/components/schemas/NextCursor'
+      required:
+      - casts
+      - next
+      type: object
+    PostCastResponse:
+      example:
+        cast:
+          author:
+            fid: 0
+          text: text
+          hash: hash
+        success: true
+      properties:
+        success:
+          type: boolean
+        cast:
+          $ref: '#/components/schemas/PostCastResponse_cast'
+      required:
+      - cast
+      - success
+      type: object
+    OperationResponse:
+      example:
+        success: true
+      properties:
+        success:
+          type: boolean
+      required:
+      - success
+      type: object
+    FollowResponse:
+      example:
+        success: true
+        target_fid: 0
+      properties:
+        success:
+          type: boolean
+        target_fid:
+          description: User identifier (unsigned integer)
+          format: int32
+          type: integer
+      required:
+      - success
+      - target_fid
+      type: object
+    BulkFollowResponse:
+      example:
+        success: true
+        details:
+        - success: true
+          target_fid: 0
+        - success: true
+          target_fid: 0
+      properties:
+        success:
+          type: boolean
+        details:
+          items:
+            $ref: '#/components/schemas/FollowResponse'
+          type: array
+      required:
+      - details
+      - success
+      type: object
+    NotificationsResponse:
+      example:
+        next:
+          cursor: cursor
+        notifications:
+        - cast: null
+          most_recent_timestamp: 2000-01-23T04:56:07.000+00:00
+          follows:
+          - user:
+              fid: 0
+              active_status: null
+              pfp_url: pfp_url
+              following_count: 1
+              viewer_context:
+                followed_by: true
+                following: true
+              profile:
+                bio:
+                  mentioned_profiles:
+                  - mentioned_profiles
+                  - mentioned_profiles
+                  text: text
+              display_name: display_name
+              verifications:
+              - null
+              - null
+              custody_address: custody_address
+              follower_count: 6
+              object: user
+              username: username
+            object: follow
+          - user:
+              fid: 0
+              active_status: null
+              pfp_url: pfp_url
+              following_count: 1
+              viewer_context:
+                followed_by: true
+                following: true
+              profile:
+                bio:
+                  mentioned_profiles:
+                  - mentioned_profiles
+                  - mentioned_profiles
+                  text: text
+              display_name: display_name
+              verifications:
+              - null
+              - null
+              custody_address: custody_address
+              follower_count: 6
+              object: user
+              username: username
+            object: follow
+          reactions:
+          - cast:
+              hash: hash
+              object: cast_dehydrated
+            user:
+              fid: 0
+              active_status: null
+              pfp_url: pfp_url
+              following_count: 1
+              viewer_context:
+                followed_by: true
+                following: true
+              profile:
+                bio:
+                  mentioned_profiles:
+                  - mentioned_profiles
+                  - mentioned_profiles
+                  text: text
+              display_name: display_name
+              verifications:
+              - null
+              - null
+              custody_address: custody_address
+              follower_count: 6
+              object: user
+              username: username
+            object: likes
+          - cast:
+              hash: hash
+              object: cast_dehydrated
+            user:
+              fid: 0
+              active_status: null
+              pfp_url: pfp_url
+              following_count: 1
+              viewer_context:
+                followed_by: true
+                following: true
+              profile:
+                bio:
+                  mentioned_profiles:
+                  - mentioned_profiles
+                  - mentioned_profiles
+                  text: text
+              display_name: display_name
+              verifications:
+              - null
+              - null
+              custody_address: custody_address
+              follower_count: 6
+              object: user
+              username: username
+            object: likes
+          type: follows
+          object: object
+        - cast: null
+          most_recent_timestamp: 2000-01-23T04:56:07.000+00:00
+          follows:
+          - user:
+              fid: 0
+              active_status: null
+              pfp_url: pfp_url
+              following_count: 1
+              viewer_context:
+                followed_by: true
+                following: true
+              profile:
+                bio:
+                  mentioned_profiles:
+                  - mentioned_profiles
+                  - mentioned_profiles
+                  text: text
+              display_name: display_name
+              verifications:
+              - null
+              - null
+              custody_address: custody_address
+              follower_count: 6
+              object: user
+              username: username
+            object: follow
+          - user:
+              fid: 0
+              active_status: null
+              pfp_url: pfp_url
+              following_count: 1
+              viewer_context:
+                followed_by: true
+                following: true
+              profile:
+                bio:
+                  mentioned_profiles:
+                  - mentioned_profiles
+                  - mentioned_profiles
+                  text: text
+              display_name: display_name
+              verifications:
+              - null
+              - null
+              custody_address: custody_address
+              follower_count: 6
+              object: user
+              username: username
+            object: follow
+          reactions:
+          - cast:
+              hash: hash
+              object: cast_dehydrated
+            user:
+              fid: 0
+              active_status: null
+              pfp_url: pfp_url
+              following_count: 1
+              viewer_context:
+                followed_by: true
+                following: true
+              profile:
+                bio:
+                  mentioned_profiles:
+                  - mentioned_profiles
+                  - mentioned_profiles
+                  text: text
+              display_name: display_name
+              verifications:
+              - null
+              - null
+              custody_address: custody_address
+              follower_count: 6
+              object: user
+              username: username
+            object: likes
+          - cast:
+              hash: hash
+              object: cast_dehydrated
+            user:
+              fid: 0
+              active_status: null
+              pfp_url: pfp_url
+              following_count: 1
+              viewer_context:
+                followed_by: true
+                following: true
+              profile:
+                bio:
+                  mentioned_profiles:
+                  - mentioned_profiles
+                  - mentioned_profiles
+                  text: text
+              display_name: display_name
+              verifications:
+              - null
+              - null
+              custody_address: custody_address
+              follower_count: 6
+              object: user
+              username: username
+            object: likes
+          type: follows
+          object: object
+      properties:
+        notifications:
+          items:
+            $ref: '#/components/schemas/Notification'
+          type: array
+        next:
+          $ref: '#/components/schemas/NextCursor'
+      required:
+      - next
+      - notifications
+      type: object
+    Notification:
+      example:
+        cast: null
+        most_recent_timestamp: 2000-01-23T04:56:07.000+00:00
+        follows:
+        - user:
+            fid: 0
+            active_status: null
+            pfp_url: pfp_url
+            following_count: 1
+            viewer_context:
+              followed_by: true
+              following: true
+            profile:
+              bio:
+                mentioned_profiles:
+                - mentioned_profiles
+                - mentioned_profiles
+                text: text
+            display_name: display_name
+            verifications:
+            - null
+            - null
+            custody_address: custody_address
+            follower_count: 6
+            object: user
+            username: username
+          object: follow
+        - user:
+            fid: 0
+            active_status: null
+            pfp_url: pfp_url
+            following_count: 1
+            viewer_context:
+              followed_by: true
+              following: true
+            profile:
+              bio:
+                mentioned_profiles:
+                - mentioned_profiles
+                - mentioned_profiles
+                text: text
+            display_name: display_name
+            verifications:
+            - null
+            - null
+            custody_address: custody_address
+            follower_count: 6
+            object: user
+            username: username
+          object: follow
+        reactions:
+        - cast:
+            hash: hash
+            object: cast_dehydrated
+          user:
+            fid: 0
+            active_status: null
+            pfp_url: pfp_url
+            following_count: 1
+            viewer_context:
+              followed_by: true
+              following: true
+            profile:
+              bio:
+                mentioned_profiles:
+                - mentioned_profiles
+                - mentioned_profiles
+                text: text
+            display_name: display_name
+            verifications:
+            - null
+            - null
+            custody_address: custody_address
+            follower_count: 6
+            object: user
+            username: username
+          object: likes
+        - cast:
+            hash: hash
+            object: cast_dehydrated
+          user:
+            fid: 0
+            active_status: null
+            pfp_url: pfp_url
+            following_count: 1
+            viewer_context:
+              followed_by: true
+              following: true
+            profile:
+              bio:
+                mentioned_profiles:
+                - mentioned_profiles
+                - mentioned_profiles
+                text: text
+            display_name: display_name
+            verifications:
+            - null
+            - null
+            custody_address: custody_address
+            follower_count: 6
+            object: user
+            username: username
+          object: likes
+        type: follows
+        object: object
+      properties:
+        object:
+          type: string
+        most_recent_timestamp:
+          format: date-time
+          type: string
+        type:
+          enum:
+          - follows
+          - recasts
+          - likes
+          - mention
+          - reply
+          type: string
+        follows:
+          items:
+            $ref: '#/components/schemas/Follow'
+          type: array
+        cast:
+          $ref: '#/components/schemas/CastWithInteractions'
+        reactions:
+          items:
+            $ref: '#/components/schemas/Reactions'
+          type: array
+      required:
+      - most_recent_timestamp
+      - object
+      - type
+      type: object
+    Follow:
+      example:
+        user:
+          fid: 0
+          active_status: null
+          pfp_url: pfp_url
+          following_count: 1
+          viewer_context:
+            followed_by: true
+            following: true
+          profile:
+            bio:
+              mentioned_profiles:
+              - mentioned_profiles
+              - mentioned_profiles
+              text: text
+          display_name: display_name
+          verifications:
+          - null
+          - null
+          custody_address: custody_address
+          follower_count: 6
+          object: user
+          username: username
+        object: follow
+      properties:
+        object:
+          enum:
+          - follow
+          type: string
+        user:
+          $ref: '#/components/schemas/User'
+      required:
+      - object
+      - user
+      type: object
+    Reactions:
+      example:
+        cast:
+          hash: hash
+          object: cast_dehydrated
+        user:
+          fid: 0
+          active_status: null
+          pfp_url: pfp_url
+          following_count: 1
+          viewer_context:
+            followed_by: true
+            following: true
+          profile:
+            bio:
+              mentioned_profiles:
+              - mentioned_profiles
+              - mentioned_profiles
+              text: text
+          display_name: display_name
+          verifications:
+          - null
+          - null
+          custody_address: custody_address
+          follower_count: 6
+          object: user
+          username: username
+        object: likes
+      properties:
+        object:
+          enum:
+          - likes
+          - recasts
+          type: string
+        cast:
+          $ref: '#/components/schemas/Reactions_cast'
+        user:
+          $ref: '#/components/schemas/User'
+      required:
+      - cast
+      - object
+      - user
+      type: object
+    RelevantFollowersResponse:
+      example:
+        top_relevant_followers_hydrated:
+        - user:
+            fid: 0
+            active_status: null
+            pfp_url: pfp_url
+            following_count: 1
+            viewer_context:
+              followed_by: true
+              following: true
+            profile:
+              bio:
+                mentioned_profiles:
+                - mentioned_profiles
+                - mentioned_profiles
+                text: text
+            display_name: display_name
+            verifications:
+            - null
+            - null
+            custody_address: custody_address
+            follower_count: 6
+            object: user
+            username: username
+          object: follow
+        - user:
+            fid: 0
+            active_status: null
+            pfp_url: pfp_url
+            following_count: 1
+            viewer_context:
+              followed_by: true
+              following: true
+            profile:
+              bio:
+                mentioned_profiles:
+                - mentioned_profiles
+                - mentioned_profiles
+                text: text
+            display_name: display_name
+            verifications:
+            - null
+            - null
+            custody_address: custody_address
+            follower_count: 6
+            object: user
+            username: username
+          object: follow
+        all_relevant_followers_dehydrated:
+        - user:
+            fid: 0
+            object: user_dehydrated
+          object: follow
+        - user:
+            fid: 0
+            object: user_dehydrated
+          object: follow
+      properties:
+        top_relevant_followers_hydrated:
+          items:
+            $ref: '#/components/schemas/HydratedFollower'
+          type: array
+        all_relevant_followers_dehydrated:
+          items:
+            $ref: '#/components/schemas/DehydratedFollower'
+          type: array
+      required:
+      - all_relevant_followers_dehydrated
+      - top_relevant_followers_hydrated
+      type: object
+    HydratedFollower:
+      example:
+        user:
+          fid: 0
+          active_status: null
+          pfp_url: pfp_url
+          following_count: 1
+          viewer_context:
+            followed_by: true
+            following: true
+          profile:
+            bio:
+              mentioned_profiles:
+              - mentioned_profiles
+              - mentioned_profiles
+              text: text
+          display_name: display_name
+          verifications:
+          - null
+          - null
+          custody_address: custody_address
+          follower_count: 6
+          object: user
+          username: username
+        object: follow
+      properties:
+        object:
+          enum:
+          - follow
+          type: string
+        user:
+          $ref: '#/components/schemas/User'
+      type: object
+    DehydratedFollower:
+      example:
+        user:
+          fid: 0
+          object: user_dehydrated
+        object: follow
+      properties:
+        object:
+          enum:
+          - follow
+          type: string
+        user:
+          $ref: '#/components/schemas/UserDehydrated'
+      type: object
+    UserDehydrated:
+      example:
+        fid: 0
+        object: user_dehydrated
+      properties:
+        object:
+          enum:
+          - user_dehydrated
+          type: string
+        fid:
+          description: User identifier (unsigned integer)
+          format: int32
+          type: integer
+      type: object
+    UserResponse:
+      example:
+        user:
+          fid: 0
+          active_status: null
+          pfp_url: pfp_url
+          following_count: 1
+          viewer_context:
+            followed_by: true
+            following: true
+          profile:
+            bio:
+              mentioned_profiles:
+              - mentioned_profiles
+              - mentioned_profiles
+              text: text
+          display_name: display_name
+          verifications:
+          - null
+          - null
+          custody_address: custody_address
+          follower_count: 6
+          object: user
+          username: username
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+      required:
+      - user
+      type: object
+    ReactionsResponse:
+      example:
+        next:
+          cursor: cursor
+        reactions:
+        - cast:
+            hash: hash
+            object: cast_dehydrated
+          user:
+            fid: 0
+            active_status: null
+            pfp_url: pfp_url
+            following_count: 1
+            viewer_context:
+              followed_by: true
+              following: true
+            profile:
+              bio:
+                mentioned_profiles:
+                - mentioned_profiles
+                - mentioned_profiles
+                text: text
+            display_name: display_name
+            verifications:
+            - null
+            - null
+            custody_address: custody_address
+            follower_count: 6
+            object: user
+            username: username
+          object: likes
+        - cast:
+            hash: hash
+            object: cast_dehydrated
+          user:
+            fid: 0
+            active_status: null
+            pfp_url: pfp_url
+            following_count: 1
+            viewer_context:
+              followed_by: true
+              following: true
+            profile:
+              bio:
+                mentioned_profiles:
+                - mentioned_profiles
+                - mentioned_profiles
+                text: text
+            display_name: display_name
+            verifications:
+            - null
+            - null
+            custody_address: custody_address
+            follower_count: 6
+            object: user
+            username: username
+          object: likes
+      properties:
+        reactions:
+          items:
+            $ref: '#/components/schemas/Reactions'
+          type: array
+        next:
+          $ref: '#/components/schemas/NextCursor'
+      required:
+      - next
+      - reactions
+      type: object
+    StorageAllocationsResponse:
+      example:
+        allocations:
+        - units: 10
+          expiry: 2024-10-08T22:03:49Z
+          user:
+            fid: 0
+            object: user_dehydrated
+          object: storage_allocation
+          timestamp: 2023-10-09T22:03:49Z
+        - units: 10
+          expiry: 2024-10-08T22:03:49Z
+          user:
+            fid: 0
+            object: user_dehydrated
+          object: storage_allocation
+          timestamp: 2023-10-09T22:03:49Z
+        total_active_units: 13
+      properties:
+        total_active_units:
+          example: 13
+          type: integer
+        allocations:
+          items:
+            $ref: '#/components/schemas/StorageAllocation'
+          type: array
+      type: object
+    StorageAllocation:
+      example:
+        units: 10
+        expiry: 2024-10-08T22:03:49Z
+        user:
+          fid: 0
+          object: user_dehydrated
+        object: storage_allocation
+        timestamp: 2023-10-09T22:03:49Z
+      properties:
+        object:
+          example: storage_allocation
+          type: string
+        user:
+          $ref: '#/components/schemas/UserDehydrated'
+        units:
+          example: 10
+          type: integer
+        expiry:
+          example: 2024-10-08T22:03:49Z
+          format: date-time
+          type: string
+        timestamp:
+          example: 2023-10-09T22:03:49Z
+          format: date-time
+          type: string
+      type: object
+    StorageUsageResponse:
+      example:
+        signers:
+          used: 3659
+          object: storage
+          capacity: 10000
+        casts:
+          used: 3659
+          object: storage
+          capacity: 10000
+        verified_addresses:
+          used: 3659
+          object: storage
+          capacity: 10000
+        total_active_units: 2
+        reactions:
+          used: 3659
+          object: storage
+          capacity: 10000
+        links:
+          used: 3659
+          object: storage
+          capacity: 10000
+        username_proofs:
+          used: 3659
+          object: storage
+          capacity: 10000
+        user:
+          fid: 0
+          object: user_dehydrated
+        object: storage_usage
+      properties:
+        object:
+          example: storage_usage
+          type: string
+        user:
+          $ref: '#/components/schemas/UserDehydrated'
+        casts:
+          $ref: '#/components/schemas/StorageObject'
+        reactions:
+          $ref: '#/components/schemas/StorageObject'
+        links:
+          $ref: '#/components/schemas/StorageObject'
+        verified_addresses:
+          $ref: '#/components/schemas/StorageObject'
+        username_proofs:
+          $ref: '#/components/schemas/StorageObject'
+        signers:
+          $ref: '#/components/schemas/StorageObject'
+        total_active_units:
+          example: 2
+          type: integer
+      type: object
+    StorageObject:
+      example:
+        used: 3659
+        object: storage
+        capacity: 10000
+      properties:
+        object:
+          example: storage
+          type: string
+        used:
+          example: 3659
+          type: integer
+        capacity:
+          example: 10000
+          type: integer
+      type: object
+    BulkUsersResponse:
+      example:
+        users:
+        - fid: 0
+          active_status: null
+          pfp_url: pfp_url
+          following_count: 1
+          viewer_context:
+            followed_by: true
+            following: true
+          profile:
+            bio:
+              mentioned_profiles:
+              - mentioned_profiles
+              - mentioned_profiles
+              text: text
+          display_name: display_name
+          verifications:
+          - null
+          - null
+          custody_address: custody_address
+          follower_count: 6
+          object: user
+          username: username
+        - fid: 0
+          active_status: null
+          pfp_url: pfp_url
+          following_count: 1
+          viewer_context:
+            followed_by: true
+            following: true
+          profile:
+            bio:
+              mentioned_profiles:
+              - mentioned_profiles
+              - mentioned_profiles
+              text: text
+          display_name: display_name
+          verifications:
+          - null
+          - null
+          custody_address: custody_address
+          follower_count: 6
+          object: user
+          username: username
+      properties:
+        users:
+          items:
+            $ref: '#/components/schemas/User'
+          type: array
+      required:
+      - users
+      type: object
+    FeedType:
+      enum:
+      - following
+      - filter
+      type: string
+    FilterType:
+      enum:
+      - fids
+      - parent_url
+      - embed_url
+      - global_trending
+      type: string
+    User_profile_bio:
+      example:
+        mentioned_profiles:
+        - mentioned_profiles
+        - mentioned_profiles
+        text: text
+      properties:
+        text:
+          type: string
+        mentioned_profiles:
+          default: []
+          items:
+            type: string
+          type: array
+      required:
+      - mentioned_profiles
+      - text
+      type: object
+    User_profile:
+      example:
+        bio:
+          mentioned_profiles:
+          - mentioned_profiles
+          - mentioned_profiles
+          text: text
+      properties:
+        bio:
+          $ref: '#/components/schemas/User_profile_bio'
+      required:
+      - bio
+      type: object
+    User_viewer_context:
+      example:
+        followed_by: true
+        following: true
+      properties:
+        following:
+          type: boolean
+        followed_by:
+          type: boolean
+      required:
+      - followed_by
+      - following
+      type: object
+    Cast_parent_author:
+      allOf:
+      - $ref: '#/components/schemas/Fid'
+      - properties:
+          fid:
+            nullable: true
+            type: string
+        required:
+        - fid
+      type: object
+    ProfileUrl_pfp:
+      properties:
+        url:
+          type: string
+      required:
+      - url
+      type: object
+    UserSearchResponse_result:
+      example:
+        users:
+        - null
+        - null
+      properties:
+        users:
+          items:
+            $ref: '#/components/schemas/SearchedUser'
+          type: array
+      required:
+      - users
+      type: object
+    CastsResponse_result:
+      example:
+        casts:
+        - null
+        - null
+      properties:
+        casts:
+          items:
+            $ref: '#/components/schemas/CastWithInteractions'
+          type: array
+      required:
+      - casts
+      type: object
+    PostCastResponse_cast_author:
+      example:
+        fid: 0
+      properties:
+        fid:
+          description: User identifier (unsigned integer)
+          format: int32
+          type: integer
+      required:
+      - fid
+      type: object
+    PostCastResponse_cast:
+      example:
+        author:
+          fid: 0
+        text: text
+        hash: hash
+      properties:
+        hash:
+          description: Ethereum address
+          type: string
+        author:
+          $ref: '#/components/schemas/PostCastResponse_cast_author'
+        text:
+          type: string
+      required:
+      - author
+      - hash
+      - text
+      type: object
+    Reactions_cast:
+      example:
+        hash: hash
+        object: cast_dehydrated
+      properties:
+        hash:
+          type: string
+        object:
+          enum:
+          - cast_dehydrated
+          type: string
+      required:
+      - hash
+      - object
+      type: object
