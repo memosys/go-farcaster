@@ -1,8 +1,8 @@
 package neynar
 
 import (
-	"go-farcaster/pkg/v1"
-	"go-farcaster/pkg/v2"
+	v1 "go-farcaster/pkg/v1"
+	v2 "go-farcaster/pkg/v2"
 	"net/http"
 )
 
@@ -15,7 +15,7 @@ type APIClient struct {
 func NewNeynarAPIClient(apiKey string, logger *Logger, client *http.Client) *APIClient {
 	return &APIClient{
 		logger: logger,
-		v1:     v1.NewV1Client(apiKey, logger, client),
-		v2:     v2.NewV2Client(apiKey, logger, client),
+		v1:     v1.NewV1Client(apiKey, client),
+		v2:     v2.NewV2Client(apiKey, client),
 	}
 }

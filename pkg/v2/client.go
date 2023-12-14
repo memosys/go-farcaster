@@ -1,7 +1,6 @@
 package v2
 
 import (
-	logger "go-farcaster/pkg/neynar"
 	"net/http"
 )
 
@@ -13,10 +12,9 @@ type UserApi interface{}
 type ReactionApi interface{}
 type FollowsApi interface{}
 
-// NeynarV2APIClient struct with APIs and Logger.
+// NeynarV2APIClient struct with APIs and neynar.
 type NeynarV2APIClient struct {
-	logger *logger.Logger
-	apis   struct {
+	apis struct {
 		signer   SignerApi
 		feed     FeedApi
 		cast     CastApi
@@ -26,10 +24,10 @@ type NeynarV2APIClient struct {
 	}
 }
 
-func NewV2Client(apiKey string, logger *logger.Logger, client *http.Client) *NeynarV2APIClient {
+func NewV2Client(apiKey string, client *http.Client) *NeynarV2APIClient {
 	// Initialize API clients here with apiKey and http.Client
 	return &NeynarV2APIClient{
-		logger: logger,
+
 		// Initialize APIs
 	}
 }
