@@ -1,3 +1,3 @@
-module neynar-go-sdk
+module go-farcaster
 
 go 1.21
