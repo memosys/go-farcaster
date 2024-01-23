@@ -1,25 +1,18 @@
 package v1
 
 import (
+	v1 "go-farcaster/pkg/openapi/openapiv1"
 	"net/http"
 )
 
-// API interfaces for v1 endpoints
-type UserApi interface{}
-type CastApi interface{}
-type VerificationApi interface{}
-type NotificationsApi interface{}
-type ReactionsApi interface{}
-type FollowsApi interface{}
-
 type NeynarV1APIClient struct {
 	apis struct {
-		user          UserApi
-		cast          CastApi
-		verification  VerificationApi
-		notifications NotificationsApi
-		reactions     ReactionsApi
-		follows       FollowsApi
+		user          *v1.UserAPIService
+		cast          *v1.CastAPIService
+		verification  *v1.VerificationAPIService
+		notifications *v1.NotificationsAPIService
+		reactions     *v1.ReactionsAPIService
+		follows       *v1.FollowsAPIService
 	}
 }
 
